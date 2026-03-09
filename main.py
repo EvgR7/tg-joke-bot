@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from joke import Joke
 from keyboard import control_keyboard
 import os
-from translate import trans
+from translate import trans, dictionary
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 ADMIN_ID = os.getenv('ADMIN_ID')
@@ -49,7 +49,7 @@ async def stats(message:Message):
     await message.answer(text)
 
 
-@dp.callback_query(F.data.in_({'JOKE','JOKEONWORD','TRANSLATE'}))
+@dp.callback_query(F.data.in_({'JOKE','JOKEONWORD','DICTIONARY','TRANSLATE'}))
 async def request(callback, state:FSMContext):
 
     if callback.data == 'JOKE':
@@ -64,6 +64,11 @@ async def request(callback, state:FSMContext):
 
         await callback.message.answer('Please enter the word')
         await state.set_state(Form.waiting_for_word)
+
+    elif callback.data == 'DICTIONARY':
+        text = callback.message.text
+        await callback.message.answer(dictionary(text), reply_markup=control_keyboard())
+
     elif callback.data == 'TRANSLATE':
         text = callback.message.text
         await callback.message.answer(trans(text), reply_markup=control_keyboard())
